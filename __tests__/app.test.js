@@ -4,6 +4,7 @@ const app = require(`${__dirname}/../app`);
 const db = require(`${__dirname}/../db/connection`);
 const seed = require(`${__dirname}/../db/seeds/seed`);
 const data = require(`${__dirname}/../db/data/test-data/index`);
+expect.extend(require("jest-sorted"));
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
@@ -64,6 +65,36 @@ describe("GET /api/articles/:article_id", () => {
       .expect(404)
       .then(({ body: { message } }) => {
         expect(message).toBe("Article not found");
+      });
+  });
+});
+
+describe("GET /api/articles/", () => {
+  test("200: Responds with an array of articles, with author, title, article_id, topic, created_at, votes, article_img_url, comment_count properties. No body property", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(Array.isArray(articles)).toBe(true);
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("author");
+          expect(article).toHaveProperty("title");
+          expect(article).toHaveProperty("article_id");
+          expect(article).toHaveProperty("comment_count");
+          expect(article).toHaveProperty("topic");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty("votes");
+          expect(article).toHaveProperty("article_img_url");
+          expect(article).not.toHaveProperty("body");
+        });
+      });
+  });
+  test("200: Articles are sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
 });
