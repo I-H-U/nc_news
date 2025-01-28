@@ -98,3 +98,55 @@ describe("GET /api/articles/", () => {
       });
   });
 });
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("200: Responds with an array of comments for the given article, each with the properties: comment_id, votes, created_at, author, body, article_id", () => {
+    return request(app)
+      .get("/api/articles/3/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(Array.isArray(comments)).toBe(true);
+        comments.forEach((comment) => {
+          expect(comment).toHaveProperty("comment_id");
+          expect(comment).toHaveProperty("votes");
+          expect(comment).toHaveProperty("created_at");
+          expect(comment).toHaveProperty("author");
+          expect(comment).toHaveProperty("body");
+          expect(comment).toHaveProperty("article_id");
+        });
+      });
+  });
+  test("200: Comments are sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/articles/3/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("200: Returns empty array if the article has no comments ", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(Array.isArray(comments)).toBe(true);
+        expect(comments).toEqual([]);
+      });
+  });
+  test("400: invalid format", () => {
+    return request(app)
+      .get("/api/articles/three/comments")
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad request");
+      });
+  });
+  test("404: valid format but no such article exists", () => {
+    return request(app)
+      .get("/api/articles/999/comments")
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Article not found");
+      });
+  });
+});
