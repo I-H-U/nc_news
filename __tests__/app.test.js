@@ -5,7 +5,6 @@ const db = require(`${__dirname}/../db/connection`);
 const seed = require(`${__dirname}/../db/seeds/seed`);
 const data = require(`${__dirname}/../db/data/test-data/index`);
 
-/* Set up your beforeEach & afterAll functions here */
 beforeEach(() => seed(data));
 afterAll(() => db.end());
 
@@ -31,6 +30,40 @@ describe("GET /api/topics", () => {
           expect(topic).toHaveProperty("slug");
           expect(topic).toHaveProperty("description");
         });
+      });
+  });
+});
+
+describe("GET /api/articles/:article_id", () => {
+  test("200: Responds with an object of requested article, with author, title, article_id, body, topic, created_at, votes, article_img_url properties", () => {
+    return request(app)
+      .get("/api/articles/2")
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article).toHaveProperty("author");
+        expect(article).toHaveProperty("title");
+        expect(article).toHaveProperty("article_id");
+        expect(article).toHaveProperty("body");
+        expect(article).toHaveProperty("topic");
+        expect(article).toHaveProperty("created_at");
+        expect(article).toHaveProperty("votes");
+        expect(article).toHaveProperty("article_img_url");
+      });
+  });
+  test("400: invalid format", () => {
+    return request(app)
+      .get("/api/articles/three")
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad request");
+      });
+  });
+  test("404: valid format but no such article exists", () => {
+    return request(app)
+      .get("/api/articles/500")
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Article not found");
       });
   });
 });
