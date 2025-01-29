@@ -212,7 +212,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("400: invalid format", () => {
+  test("400: invalid parameter format", () => {
     const newComment = {
       username: "butter_bridge",
       body: "Pure tuna is the way to go!",
@@ -236,6 +236,69 @@ describe("POST /api/articles/:article_id/comments", () => {
       .expect(404)
       .then(({ body: { message } }) => {
         expect(message).toBe("Article not found");
+      });
+  });
+});
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("200: votes updates according to given number of votes ", () => {
+    const votesAdd = { inc_votes: 5 };
+    const votesMinus = { inc_votes: -1 };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(votesAdd)
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article.votes).toBe(105);
+      })
+      .then(() => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send(votesMinus)
+          .expect(200)
+          .then(({ body: { article } }) => {
+            expect(article.votes).toBe(104);
+          });
+      });
+  });
+  test("400: invalid parameter format", () => {
+    const votes = { inc_votes: 5 };
+    return request(app)
+      .patch("/api/articles/one")
+      .send(votes)
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad request");
+      });
+  });
+  test("404: valid format but no such article exists", () => {
+    const votes = { inc_votes: 5 };
+    return request(app)
+      .patch("/api/articles/999")
+      .send(votes)
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Article not found");
+      });
+  });
+  test("400: invalid data type", () => {
+    const votes = { inc_votes: "five" };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(votes)
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad request");
+      });
+  });
+  test("400: returns error when given empty request", () => {
+    const votes = {};
+    return request(app)
+      .patch("/api/articles/1")
+      .send(votes)
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad request");
       });
   });
 });
