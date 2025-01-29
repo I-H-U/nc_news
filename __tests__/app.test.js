@@ -150,3 +150,92 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: Responds with a comment object with properties: comment_id, votes, created_at, author, body, article_id", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "Pure tuna is the way to go!",
+    };
+    return request(app)
+      .post("/api/articles/6/comments")
+      .send(newComment)
+      .expect(201)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          comment_id: 19,
+          votes: 0,
+          created_at: expect.any(String),
+          author: "butter_bridge",
+          body: "Pure tuna is the way to go!",
+          article_id: 6,
+        });
+      });
+  });
+
+  test("400: request body missing data", () => {
+    const newComment1 = {
+      body: "Pure tuna is the way to go!",
+    };
+    const newComment2 = {
+      username: "butter_bridge",
+    };
+    return request(app)
+      .post("/api/articles/6/comments")
+      .send(newComment1)
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad request");
+      })
+      .then(() => {
+        return request(app)
+          .post("/api/articles/6/comments")
+          .send(newComment2)
+          .expect(400)
+          .then(({ body: { message } }) => {
+            expect(message).toBe("Bad request");
+          });
+      });
+  });
+
+  test("400: responds with error message if user does not exist", () => {
+    const newComment = {
+      username: "iDontExist",
+      body: "Pure tuna is the way to go!",
+    };
+    return request(app)
+      .post("/api/articles/3/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad request");
+      });
+  });
+
+  test("400: invalid format", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "Pure tuna is the way to go!",
+    };
+    return request(app)
+      .post("/api/articles/six/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad request");
+      });
+  });
+  test("404: valid format but no such article exists", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "Pure tuna is the way to go!",
+    };
+    return request(app)
+      .post("/api/articles/999/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Article not found");
+      });
+  });
+});
