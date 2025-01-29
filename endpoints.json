@@ -103,5 +103,16 @@
       "400": "Bad request - missing required field `inc_votes`, invalid data type, or inc_votes is not a number",
       "404": "Not found - the specified article_id does not exist"
     }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "Deletes a comment by its ID",
+    "queries": [],
+    "exampleResponse": {
+      "message": "Comment deleted successfully"
+    },
+    "errors": {
+      "400": "Bad request - invalid comment_id",
+      "404": "Not found - the specified comment_id does not exist"
+    }
   }
 }
