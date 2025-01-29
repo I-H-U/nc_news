@@ -114,5 +114,18 @@
       "400": "Bad request - invalid comment_id",
       "404": "Not found - the specified comment_id does not exist"
     }
+  },
+  "GET /api/users": {
+    "description": "Responds with an array of user objects containing username, name, and avatar_url properties",
+    "queries": [],
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "butter_bridge",
+          "name": "Jonny",
+          "avatar_url": "http://image.com/avatar.jpg"
+        }
+      ]
+    }
   }
 }
