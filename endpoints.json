@@ -10,8 +10,18 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all articles",
-    "queries": [],
+    "description": "Serves an array of all articles, optionally sorted by any valid column and ordered in ascending or descending order.",
+    "queries": [
+      {
+        "name": "sort_by",
+        "description": "Column to sort the articles by. Valid columns include 'article_id', 'author', 'title', 'comment_count', 'topic', 'created_at', 'article_img_url', and 'votes'. Defaults to 'created_at'."
+      },
+      {
+        "name": "order",
+        "description": "The order in which to sort the articles: 'asc' for ascending or 'desc' for descending. Defaults to 'desc'."
+      }
+    ],
+    "exampleRequest": "/api/articles?sort_by=votes&order=asc",
     "exampleResponse": {
       "articles": [
         {
@@ -20,11 +30,25 @@
           "article_id": 1,
           "topic": "cooking",
           "created_at": "2018-05-30T15:59:13.341Z",
-          "votes": 0,
+          "votes": 100,
           "comment_count": 6,
           "article_img_url": "http://image.com/image.jpg"
+        },
+        {
+          "author": "butter_bridge",
+          "title": "The art of pasta making",
+          "article_id": 2,
+          "topic": "cooking",
+          "created_at": "2018-05-29T15:00:00.341Z",
+          "votes": 50,
+          "comment_count": 2,
+          "article_img_url": "http://image.com/image2.jpg"
         }
       ]
+    },
+    "errors": {
+      "400": "Bad request - invalid column specified for sort_by or invalid order (must be 'asc' or 'desc').",
+      "404": "Not found - no articles exist."
     }
   },
   "GET /api/articles/:article_id": {
