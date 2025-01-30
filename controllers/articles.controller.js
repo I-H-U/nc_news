@@ -17,7 +17,15 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  selectArticles()
+  let { sort_by = "created_at", order = "desc" } = req.query;
+  if (!sort_by) {
+    sort_by = "created_at";
+  }
+  if (!order) {
+    order = "desc";
+  }
+
+  selectArticles(sort_by, order)
     .then((articles) => {
       res.status(200).send({ articles });
     })

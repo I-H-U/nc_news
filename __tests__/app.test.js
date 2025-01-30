@@ -97,6 +97,94 @@ describe("GET /api/articles/", () => {
         expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
+  describe("sorting queries", () => {
+    test("200: sorts by default (created_at) column, when no column given, descending by default", () => {
+      return request(app)
+        .get("/api/articles?sort_by")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("created_at", {
+            descending: true,
+          });
+        });
+    });
+    test("200: sorts by given column 'title', descending by default", () => {
+      return request(app)
+        .get("/api/articles?sort_by=title")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("title", {
+            descending: true,
+          });
+        });
+    });
+    test("200: sorts by given column 'comment_count', descending by default", () => {
+      return request(app)
+        .get("/api/articles?sort_by=comment_count")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("comment_count", {
+            descending: true,
+          });
+        });
+    });
+    test("200: sorts by given column and order=asc", () => {
+      return request(app)
+        .get("/api/articles?sort_by=comment_count&order=asc")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("comment_count", {
+            ascending: true,
+          });
+        });
+    });
+    test("200: sorts by given column and order=desc", () => {
+      return request(app)
+        .get("/api/articles?sort_by=author&order=desc")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("author", {
+            descending: true,
+          });
+        });
+    });
+    test("200: sorts by given column and orders descending by default if order has no value", () => {
+      return request(app)
+        .get("/api/articles?sort_by=author&order")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("author", {
+            descending: true,
+          });
+        });
+    });
+    test("200: defaults to created_ at column when only given order query", () => {
+      return request(app)
+        .get("/api/articles?order=desc")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("created_at", {
+            descending: true,
+          });
+        });
+    });
+    test("400: return error if given invalid sorty_by", () => {
+      return request(app)
+        .get("/api/articles?sort_by=monkeys")
+        .expect(400)
+        .then(({ body: { message } }) => {
+          expect(message).toBe("Bad request");
+        });
+    });
+    test("400: return error if given invalid order", () => {
+      return request(app)
+        .get("/api/articles?sort_by=title&order=highest")
+        .expect(400)
+        .then(({ body: { message } }) => {
+          expect(message).toBe("Bad request");
+        });
+    });
+  });
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
@@ -336,8 +424,6 @@ describe("GET /api/users", () => {
       .get("/api/users")
       .expect(200)
       .then(({ body }) => {
-        console.log(body, "in test");
-
         expect(body.length).toBe(4);
         body.forEach((user) => {
           expect(user).toMatchObject({
