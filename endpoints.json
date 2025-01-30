@@ -10,7 +10,7 @@
     }
   },
   "GET /api/articles": {
-    "description": "Serves an array of all articles, optionally sorted by any valid column and ordered in ascending or descending order.",
+    "description": "Serves an array of all articles, optionally filtered by topic, sorted by any valid column, and ordered in ascending or descending order.",
     "queries": [
       {
         "name": "sort_by",
@@ -19,16 +19,20 @@
       {
         "name": "order",
         "description": "The order in which to sort the articles: 'asc' for ascending or 'desc' for descending. Defaults to 'desc'."
+      },
+      {
+        "name": "topic",
+        "description": "Filters articles by topic. Valid topics include 'cats' and 'mitch'. If no topic is specified, all articles are returned."
       }
     ],
-    "exampleRequest": "/api/articles?sort_by=votes&order=asc",
+    "exampleRequest": "/api/articles?sort_by=votes&order=asc&topic=mitch",
     "exampleResponse": {
       "articles": [
         {
           "author": "weegembump",
           "title": "Seafood substitutions are increasing",
           "article_id": 1,
-          "topic": "cooking",
+          "topic": "mitch",
           "created_at": "2018-05-30T15:59:13.341Z",
           "votes": 100,
           "comment_count": 6,
@@ -38,7 +42,7 @@
           "author": "butter_bridge",
           "title": "The art of pasta making",
           "article_id": 2,
-          "topic": "cooking",
+          "topic": "mitch",
           "created_at": "2018-05-29T15:00:00.341Z",
           "votes": 50,
           "comment_count": 2,
@@ -47,8 +51,8 @@
       ]
     },
     "errors": {
-      "400": "Bad request - invalid column specified for sort_by or invalid order (must be 'asc' or 'desc').",
-      "404": "Not found - no articles exist."
+      "400": "Bad request - invalid column specified for sort_by, invalid order (must be 'asc' or 'desc'), or invalid topic.",
+      "404": "Not found - no articles exist for the given topic."
     }
   },
   "GET /api/articles/:article_id": {

@@ -185,6 +185,34 @@ describe("GET /api/articles/", () => {
         });
     });
   });
+  describe("topic query", () => {
+    test("200: returns articles matching given topic", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          articles.forEach((article) => {
+            expect(article.topic).toEqual("mitch");
+          });
+        });
+    });
+    test("404: not found when no articles for matching topic", () => {
+      return request(app)
+        .get("/api/articles?topic=paper")
+        .expect(404)
+        .then(({ body: { message } }) => {
+          expect(message).toBe("Not found");
+        });
+    });
+  });
+  test("400: returns error if given invalid topic", () => {
+    return request(app)
+      .get("/api/articles?topic=horses")
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad request");
+      });
+  });
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
