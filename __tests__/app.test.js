@@ -192,17 +192,18 @@ describe("GET /api/articles/", () => {
         .get("/api/articles?topic=mitch")
         .expect(200)
         .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(12);
           articles.forEach((article) => {
             expect(article.topic).toEqual("mitch");
           });
         });
     });
-    test("404: not found when no articles for matching topic", () => {
+    test("200: returns empty array when no articles for given topic", () => {
       return request(app)
         .get("/api/articles?topic=paper")
-        .expect(404)
-        .then(({ body: { message } }) => {
-          expect(message).toBe("Not found");
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(0);
         });
     });
     test("400: returns error if given invalid topic", () => {

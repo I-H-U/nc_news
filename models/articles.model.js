@@ -42,28 +42,29 @@ exports.selectArticles = (sort_by, order, topic) => {
     "article_img_url",
   ];
   const validOrders = ["asc", "desc"];
-  const validTopics = ["cats", "mitch", "paper"];
   const queryParams = [];
   let queryStr = `SELECT articles.author , articles.title , articles.article_id , articles.topic , articles.created_at , articles.votes , articles.article_img_url , COUNT(comments.comment_id)::INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id `;
 
   if (!validColumns.includes(sort_by) || !validOrders.includes(order)) {
     return Promise.reject({ status: 400, message: "Bad request" });
   }
-  if (topic) {
-    if (!validTopics.includes(topic)) {
+
+  const checkIfTopicExists = topic
+    ? db.query(`SELECT * FROM topics where slug = $1`, [topic])
+    : Promise.resolve();
+  return checkIfTopicExists.then((result) => {
+    if (topic && result.rows.length === 0) {
       return Promise.reject({ status: 400, message: "Bad request" });
     }
-    queryStr += `WHERE topic = $1 `;
-    queryParams.push(topic);
-  }
 
-  queryStr += `GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`;
-
-  return db.query(queryStr, queryParams).then(({ rows }) => {
-    if (rows.length === 0) {
-      return Promise.reject({ status: 404, message: "Not found" });
+    if (topic) {
+      queryStr += `WHERE articles.topic = $1 `;
+      queryParams.push(topic);
     }
-    return rows;
+
+    queryStr += `GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`;
+
+    return db.query(queryStr, queryParams).then(({ rows }) => rows);
   });
 };
 
