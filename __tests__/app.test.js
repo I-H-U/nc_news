@@ -49,6 +49,7 @@ describe("GET /api/articles/:article_id", () => {
         expect(article).toHaveProperty("created_at");
         expect(article).toHaveProperty("votes");
         expect(article).toHaveProperty("article_img_url");
+        expect(article).toHaveProperty("comment_count");
       });
   });
   test("400: invalid format", () => {
@@ -204,14 +205,14 @@ describe("GET /api/articles/", () => {
           expect(message).toBe("Not found");
         });
     });
-  });
-  test("400: returns error if given invalid topic", () => {
-    return request(app)
-      .get("/api/articles?topic=horses")
-      .expect(400)
-      .then(({ body: { message } }) => {
-        expect(message).toBe("Bad request");
-      });
+    test("400: returns error if given invalid topic", () => {
+      return request(app)
+        .get("/api/articles?topic=horses")
+        .expect(400)
+        .then(({ body: { message } }) => {
+          expect(message).toBe("Bad request");
+        });
+    });
   });
 });
 
