@@ -82,7 +82,13 @@ exports.selectCommentsByArticleId = (article_id) => {
 exports.updateArticleVotes = (article_id, inc_votes) => {
   return db
     .query(
-      `UPDATE articles SET votes = votes + ($1) WHERE article_id = $2 RETURNING *`,
+      `UPDATE articles
+       SET votes = CASE
+       WHEN votes + $1 < 0 THEN 0
+       ELSE votes + $1
+       END
+       WHERE article_id = $2
+       RETURNING *`,
       [inc_votes, article_id]
     )
     .then(({ rows }) => {
