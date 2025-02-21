@@ -40,6 +40,7 @@ exports.selectArticles = (sort_by, order, topic) => {
     "topic",
     "created_at",
     "article_img_url",
+    "votes",
   ];
   const validOrders = ["asc", "desc"];
   const queryParams = [];
